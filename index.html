@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Life in Games</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#161616">
+<link rel="apple-touch-icon" href="icon-180.png">
+<script>
+// Point support.js's CDN loader at the vendored copies (read before it runs).
+// React is required to render at all, and a cross-origin unpkg script would
+// break the offline promise. Both files are byte-identical to the unpkg
+// builds — their SHA-384 hashes match the SRI values support.js pins.
+window.__resources = {
+  "https://unpkg.com/react@18.3.1/umd/react.production.min.js": "vendor/react.production.min.js",
+  "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js": "vendor/react-dom.production.min.js"
+};
+</script>
+<script src="./support.js"></script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});}</script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<!-- Self-hosted rather than fonts.googleapis.com: cross-origin stylesheets
+     and their woff2 files can't be precached by the service worker, so the
+     app would lose its typefaces offline. Same families and weights,
+     generated from the Google CSS with URLs rewritten stylesheet-relative. -->
+<link href="fonts/fonts.css" rel="stylesheet">
+<style>
+  :root { --bg: #161616; --grid: #262626; --acc: #ffff00; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: #ffffff; }
+  a { color: #000; text-decoration: none; }
+  a:hover { color: #000; }
+  ::selection { background: var(--acc); color: #000; }
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track { background: #fff; border-left: 2px solid #000; }
+  ::-webkit-scrollbar-thumb { background: #000; }
+  input, textarea, button { font-family: inherit; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes pulseB { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+  @keyframes modalIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes sheetIn { from { opacity: 0; transform: translate(8px,20px); } to { opacity: 1; transform: translate(0,0); } }
+  @keyframes popIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#fff"/><rect x="18" y="18" width="64" height="64" fill="var(--acc)" stroke="#000" stroke-width="4"/><text x="50" y="66" font-family="Arial Black,sans-serif" font-weight="900" font-size="34" fill="#000" text-anchor="middle">GV</text></svg>
+</template>
+</helmet>
+<div style="min-height:100vh;color:#000;font-family:'Space Grotesk',system-ui,sans-serif;font-size:16px;line-height:1.5;position:relative;background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:46px 46px;">
+
+  <input type="file" accept="application/json" ref="{{ importRef }}" onChange="{{ onImport }}" style="display:none;">
+
+  <!-- TOP BAR -->
+  <div style="position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;background:var(--bg);border-bottom:3px solid #fff;">
+    <div style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.12em;color:#fff;">[ A LIFE IN GAMES ]</div>
+    <div style="display:flex;align-items:center;gap:9px;position:relative;">
+      <button onClick="{{ toggleEdit }}" style="{{ editBtnStyle }}" style-hover="background:var(--acc);color:#000">{{ editBtnLabel }} &#9998;</button>
+      <button onClick="{{ toggleMenu }}" title="More" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:2.5px solid #000;background:#fff;color:#000;font-size:18px;line-height:1;" style-hover="background:#000;color:var(--acc)">&#8943;</button>
+      <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:50px;right:0;width:220px;background:#fff;border:2.5px solid #000;box-shadow:6px 6px 0 #000;padding:6px;animation:popIn .12s ease;">
+          <button onClick="{{ backup }}" style="{{ menuItemStyle }}" style-hover="background:var(--acc)">&#8681; BACKUP TO FILE</button>
+          <button onClick="{{ triggerImport }}" style="{{ menuItemStyle }}" style-hover="background:var(--acc)">&#8679; IMPORT FROM FILE</button>
+          <button onClick="{{ reset }}" style="{{ menuItemStyle }}" style-hover="background:var(--acc)">&#8635; RESET TO PUBLISHED</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <!-- MASTHEAD -->
+  <header style="max-width:1280px;margin:0 auto;padding:44px 20px 12px;">
+    <div style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.24em;margin-bottom:12px;color:var(--acc);">&#9670; PERSONAL GAME VAULT / EST. MEMORY</div>
+    <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+      <input value="{{ title }}" onInput="{{ onTitle }}" style="width:100%;background:var(--acc);border:2.5px solid #000;color:#000;font-family:'Anton',sans-serif;font-size:clamp(48px,13vw,150px);line-height:.9;padding:6px 12px;outline:none;text-transform:uppercase;">
+      <input value="{{ subtitle }}" onInput="{{ onSubtitle }}" style="width:100%;margin-top:14px;background:#fff;border:2.5px solid #000;color:#000;font-family:'Space Grotesk',sans-serif;font-size:18px;padding:8px 12px;outline:none;">
+    </sc-if>
+    <sc-if value="{{ notEditing }}" hint-placeholder-val="{{ true }}">
+      <h1 style="margin:0;font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(48px,13vw,150px);line-height:.86;letter-spacing:-.01em;text-transform:uppercase;color:#fff;">{{ title }}</h1>
+      <p style="margin:18px 0 0;font-size:clamp(16px,2.4vw,21px);max-width:620px;font-weight:500;color:#bdbdbd;">{{ subtitle }}</p>
+    </sc-if>
+    <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:24px;">
+      <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.16em;color:#8a8a8a;margin-right:4px;">THEME &#47;&#47;</span>
+      <sc-for list="{{ palettes }}" as="p" hint-placeholder-count="9">
+        <button data-name="{{ p.name }}" onClick="{{ onPickPalette }}" title="{{ p.name }}" style="{{ p.swStyle }}" style-hover="opacity:1;transform:scale(1.12)"></button>
+      </sc-for>
+    </div>
+  </header>
+
+  <!-- MARQUEE -->
+  <div style="overflow:hidden;background:var(--acc);border-top:3px solid #fff;border-bottom:3px solid #fff;padding:9px 0;margin-top:24px;white-space:nowrap;">
+    <div style="display:inline-flex;gap:26px;animation:marquee 26s linear infinite;font-family:'Anton',sans-serif;font-size:20px;letter-spacing:.04em;color:#000;text-transform:uppercase;padding-right:26px;">
+      <sc-for list="{{ marquee }}" as="word" hint-placeholder-count="16"><span>{{ word }}</span></sc-for>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div style="max-width:1280px;margin:0 auto;padding:26px 20px 8px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+    <div style="border:2.5px solid #000;background:#fff;box-shadow:1px 1px 0 #000,2px 2px 0 #000,3px 3px 0 #000,4px 4px 0 #000,5px 5px 0 #000,6px 6px 0 #000,7px 7px 0 #000;padding:16px 18px;">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;">CATALOGUED</div>
+      <div style="font-family:'Anton',sans-serif;font-size:clamp(44px,8vw,78px);line-height:.9;margin-top:6px;">{{ totalCount }}</div>
+    </div>
+    <div style="border:2.5px solid #000;background:#fff;box-shadow:1px 1px 0 #000,2px 2px 0 #000,3px 3px 0 #000,4px 4px 0 #000,5px 5px 0 #000,6px 6px 0 #000,7px 7px 0 #000;padding:16px 18px;">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;">PLAYED</div>
+      <div style="font-family:'Anton',sans-serif;font-size:clamp(44px,8vw,78px);line-height:.9;margin-top:6px;">{{ playedCount }}</div>
+    </div>
+    <div style="border:2.5px solid #000;background:var(--acc);box-shadow:1px 1px 0 #000,2px 2px 0 #000,3px 3px 0 #000,4px 4px 0 #000,5px 5px 0 #000,6px 6px 0 #000,7px 7px 0 #000;padding:16px 18px;">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;">WISHLIST</div>
+      <div style="font-family:'Anton',sans-serif;font-size:clamp(44px,8vw,78px);line-height:.9;margin-top:6px;">{{ queueCount }}</div>
+    </div>
+  </div>
+
+  <!-- PLATFORM NAV -->
+  <nav style="position:sticky;top:59px;z-index:50;background:var(--bg);border-top:3px solid #fff;border-bottom:3px solid #fff;">
+    <div style="max-width:1280px;margin:0 auto;display:flex;gap:0;padding:0 20px;overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <sc-for list="{{ nav }}" as="item" hint-placeholder-count="6">
+        <a href="#sec-{{ item.id }}" style="flex:0 0 auto;display:flex;align-items:center;gap:9px;padding:11px 18px;border-right:2.5px solid #000;background:#fff;color:#000;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;text-transform:uppercase;white-space:nowrap;" style-hover="background:var(--acc)">
+          {{ item.name }} <span style="font-weight:400;">[{{ item.count }}]</span>
+        </a>
+      </sc-for>
+    </div>
+  </nav>
+
+  <!-- SECTIONS -->
+  <main style="max-width:1280px;margin:0 auto;padding:0 20px 140px;">
+    <sc-for list="{{ sections }}" as="section" hint-placeholder-count="6">
+      <section id="sec-{{ section.id }}" style="scroll-margin-top:130px;padding-top:52px;">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:5px solid #fff;padding-bottom:8px;margin-bottom:26px;">
+          <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+            <input value="{{ section.name }}" data-section="{{ section.id }}" onInput="{{ onRenameSection }}" style="flex:1;min-width:0;background:#fff;border:2.5px solid #000;color:#000;font-family:'Anton',sans-serif;font-size:clamp(30px,7vw,56px);padding:2px 12px;outline:none;text-transform:uppercase;">
+            <button data-section="{{ section.id }}" onClick="{{ onDeleteSection }}" title="Remove section" style="flex:0 0 auto;padding:10px 14px;border:2.5px solid #000;background:#fff;color:#000;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;" style-hover="background:#000;color:var(--acc)">REMOVE</button>
+          </sc-if>
+          <sc-if value="{{ notEditing }}" hint-placeholder-val="{{ true }}">
+            <h2 style="margin:0;font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(34px,8vw,84px);line-height:.86;text-transform:uppercase;letter-spacing:-.01em;color:#fff;">{{ section.name }}</h2>
+          </sc-if>
+          <span style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;background:#000;color:var(--acc);padding:6px 12px;white-space:nowrap;">{{ section.countLabel }}</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:18px;">
+          <sc-for list="{{ section.games }}" as="g" hint-placeholder-count="4">
+            <article data-section="{{ section.id }}" data-id="{{ g.id }}" onClick="{{ onCardClick }}" style="{{ g.wrapStyle }}" style-hover="transform:translate(9px,9px);box-shadow:none">
+              <div style="position:relative;aspect-ratio:1/1;overflow:hidden;background:{{ g.thumbBg }};border-bottom:2.5px solid #000;">
+                <sc-if value="{{ g.hasCover }}" hint-placeholder-val="{{ false }}">
+                  <img src="{{ g.cover }}" loading="lazy" alt="{{ g.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+                </sc-if>
+                <sc-if value="{{ g.showMono }}" hint-placeholder-val="{{ true }}">
+                  <span style="{{ g.idxBadge }}">{{ g.index }}</span>
+                  <span style="position:absolute;bottom:9px;left:11px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.16em;color:{{ g.subColor }};">{{ g.platformTag }}</span>
+                  <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:58px;color:{{ g.monoColor }};">{{ g.mono }}</span>
+                </sc-if>
+                <sc-if value="{{ g.showPill }}" hint-placeholder-val="{{ false }}">
+                  <span style="{{ g.pillStyle }}">{{ g.pillLabel }}</span>
+                </sc-if>
+                <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+                  <button data-section="{{ section.id }}" data-id="{{ g.id }}" onClick="{{ onDeleteGame }}" title="Delete" style="position:absolute;top:7px;right:7px;z-index:5;width:28px;height:28px;border:2.5px solid #000;background:#fff;color:#000;font-size:15px;line-height:1;" style-hover="background:#ff2b2b;color:#fff">&times;</button>
+                  <button data-section="{{ section.id }}" data-id="{{ g.id }}" onClick="{{ onCycleStatus }}" title="Change status" style="position:absolute;bottom:7px;right:7px;z-index:5;padding:5px 9px;border:2.5px solid #000;background:var(--acc);color:#000;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.06em;">{{ g.statusShort }}</button>
+                </sc-if>
+              </div>
+              <div style="padding:11px 12px 13px;">
+                <div style="font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;line-height:1.12;text-transform:uppercase;letter-spacing:-.01em;text-wrap:pretty;min-height:34px;">{{ g.name }}</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;">
+                  <span style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;">{{ g.year }}</span>
+                  <span style="{{ g.tagStyle }}">{{ g.statusLabel }}</span>
+                </div>
+              </div>
+            </article>
+          </sc-for>
+
+          <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+            <button data-section="{{ section.id }}" onClick="{{ onAddGame }}" style="aspect-ratio:1/1;border:3px dashed #000;background:#fff;color:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;text-transform:uppercase;" style-hover="background:var(--acc)">
+              <span style="font-family:'Anton',sans-serif;font-size:48px;line-height:1;">+</span> ADD GAME
+            </button>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ section.empty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:30px 0;font-family:'Space Mono',monospace;font-weight:700;text-transform:uppercase;color:#888;">// NO GAMES CATALOGUED HERE YET</div>
+        </sc-if>
+      </section>
+    </sc-for>
+
+    <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:56px;">
+        <button onClick="{{ addSection }}" style="width:100%;padding:18px;border:3px dashed #000;background:#fff;color:#000;font-family:'Anton',sans-serif;font-size:26px;text-transform:uppercase;" style-hover="background:var(--acc)">+ ADD A PLATFORM / ERA</button>
+      </div>
+    </sc-if>
+  </main>
+
+  <!-- EDIT BANNER -->
+  <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:70;display:flex;align-items:center;gap:14px;padding:12px 18px;background:var(--acc);color:#000;border:2.5px solid #000;box-shadow:6px 6px 0 #000;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;text-transform:uppercase;animation:sheetIn .18s ease;">
+      <span style="width:10px;height:10px;background:#000;animation:pulseB 1.4s infinite;"></span>
+      EDITING &mdash; TAP ANY GAME
+      <button onClick="{{ toggleEdit }}" style="margin-left:4px;padding:7px 15px;border:2.5px solid #000;background:#000;color:var(--acc);font-family:'Space Mono',monospace;font-weight:700;font-size:12px;">DONE</button>
+    </div>
+  </sc-if>
+
+  <!-- SAVE ERROR BANNER -->
+  <sc-if value="{{ hasSaveError }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:0;right:0;bottom:0;z-index:300;background:#ff2b2b;color:#fff;border-top:3px solid #000;padding:12px 18px;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;text-align:center;letter-spacing:.06em;">&#9888; {{ saveError }}</div>
+  </sc-if>
+
+  <!-- DETAIL / EDITOR MODAL -->
+  <sc-if value="{{ hasSelected }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeDetail }}" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 14px;animation:modalIn .16s ease;">
+      <div onClick="{{ stop }}" style="width:100%;max-width:780px;background:#fff;border:3px solid #000;animation:sheetIn .2s ease;margin:auto 0;">
+
+        <div style="position:relative;aspect-ratio:16/9;background:{{ sel.shotBg }};border-bottom:3px solid #000;overflow:hidden;">
+          <sc-if value="{{ sel.hasClip }}" hint-placeholder-val="{{ false }}">
+            <video src="{{ sel.clip }}" muted loop playsinline controls poster="{{ sel.screenshot }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;"></video>
+          </sc-if>
+          <sc-if value="{{ sel.showShotImg }}" hint-placeholder-val="{{ false }}">
+            <img src="{{ sel.screenshot }}" alt="gameplay" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+          </sc-if>
+          <sc-if value="{{ sel.showShotPlaceholder }}" hint-placeholder-val="{{ true }}">
+            <span style="position:absolute;bottom:-30px;right:6px;font-family:'Anton',sans-serif;font-size:220px;line-height:1;color:rgba(255,255,255,.08);">{{ sel.index }}</span>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">
+              <div style="font-family:'Anton',sans-serif;font-size:84px;color:#fff;">{{ sel.mono }}</div>
+              <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:var(--acc);">GAMEPLAY SCREENSHOT // ADD IN EDIT MODE</div>
+            </div>
+          </sc-if>
+          <button onClick="{{ closeDetail }}" style="position:absolute;top:12px;right:12px;z-index:4;width:40px;height:40px;border:2.5px solid #000;background:var(--acc);color:#000;font-size:20px;line-height:1;" style-hover="background:#000;color:var(--acc)">&times;</button>
+          <span style="position:absolute;top:12px;left:12px;{{ sel.statusChipStyle }}">{{ sel.statusLabel }}</span>
+        </div>
+
+        <div style="padding:24px 26px 28px;">
+          <sc-if value="{{ notEditing }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:14px;">
+              <span style="font-family:'Anton',sans-serif;font-size:clamp(34px,8vw,58px);line-height:.9;color:#000;">{{ sel.index }}</span>
+              <h2 style="margin:0;font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(26px,5.5vw,44px);line-height:1;text-transform:uppercase;letter-spacing:-.02em;">{{ sel.name }}</h2>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:0;margin-top:16px;border:2.5px solid #000;width:fit-content;">
+              <span style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;padding:8px 13px;border-right:2.5px solid #000;">{{ sel.year }}</span>
+              <span style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;padding:8px 13px;border-right:2.5px solid #000;text-transform:uppercase;">{{ sel.sectionName }}</span>
+              <sc-if value="{{ sel.hasGenre }}" hint-placeholder-val="{{ false }}">
+                <span style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;padding:8px 13px;text-transform:uppercase;">{{ sel.genre }}</span>
+              </sc-if>
+            </div>
+            <p style="margin:20px 0 0;font-size:17px;line-height:1.6;max-width:60ch;font-weight:500;text-wrap:pretty;">{{ sel.description }}</p>
+            <button onClick="{{ startEditSelected }}" style="margin-top:24px;padding:12px 20px;border:2.5px solid #000;background:#fff;color:#000;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;text-transform:uppercase;" style-hover="background:#000;color:var(--acc)">&#9998; EDIT THIS GAME</button>
+          </sc-if>
+
+          <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;gap:16px;">
+              <div>
+                <label style="{{ labelStyle }}">NAME</label>
+                <input value="{{ sel.name }}" data-field="name" onInput="{{ onField }}" style="{{ fieldStyle }}">
+              </div>
+              <div style="display:flex;gap:14px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:120px;">
+                  <label style="{{ labelStyle }}">YEAR</label>
+                  <input value="{{ sel.year }}" data-field="year" onInput="{{ onField }}" inputmode="numeric" style="{{ fieldStyle }}">
+                </div>
+                <div style="flex:2;min-width:160px;">
+                  <label style="{{ labelStyle }}">GENRE (OPTIONAL)</label>
+                  <input value="{{ sel.genre }}" data-field="genre" onInput="{{ onField }}" style="{{ fieldStyle }}">
+                </div>
+              </div>
+              <div>
+                <label style="{{ labelStyle }}">STATUS</label>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button data-status="played" onClick="{{ onSetStatus }}" style="{{ sel.segPlayed }}">PLAYED</button>
+                  <button data-status="playing" onClick="{{ onSetStatus }}" style="{{ sel.segPlaying }}">PLAYING</button>
+                  <button data-status="want" onClick="{{ onSetStatus }}" style="{{ sel.segWant }}">WISHLIST</button>
+                </div>
+              </div>
+              <div>
+                <label style="{{ labelStyle }}">GAMEPLAY DESCRIPTION</label>
+                <textarea data-field="description" onInput="{{ onField }}" rows="4" style="{{ fieldStyle }}resize:vertical;">{{ sel.description }}</textarea>
+              </div>
+              <div style="display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+                <div>
+                  <label style="{{ labelStyle }}">COVER IMAGE</label>
+                  <input value="{{ sel.cover }}" data-field="cover" onInput="{{ onField }}" placeholder="PASTE URL OR UPLOAD" style="{{ fieldStyle }}">
+                  <input type="file" accept="image/*" data-field="cover" onChange="{{ onFileField }}" style="margin-top:8px;font-size:12px;font-family:'Space Mono',monospace;">
+                </div>
+                <div>
+                  <label style="{{ labelStyle }}">GAMEPLAY SCREENSHOT</label>
+                  <input value="{{ sel.screenshot }}" data-field="screenshot" onInput="{{ onField }}" placeholder="PASTE URL OR UPLOAD" style="{{ fieldStyle }}">
+                  <input type="file" accept="image/*" data-field="screenshot" onChange="{{ onFileField }}" style="margin-top:8px;font-size:12px;font-family:'Space Mono',monospace;">
+                </div>
+              </div>
+              <div>
+                <label style="{{ labelStyle }}">GAMEPLAY CLIP (OPTIONAL, MUTED)</label>
+                <input value="{{ sel.clip }}" data-field="clip" onInput="{{ onField }}" placeholder="PASTE VIDEO URL OR UPLOAD" style="{{ fieldStyle }}">
+                <input type="file" accept="video/*" data-field="clip" onChange="{{ onFileField }}" style="margin-top:8px;font-size:12px;font-family:'Space Mono',monospace;">
+              </div>
+              <div style="display:flex;justify-content:space-between;gap:12px;margin-top:4px;border-top:3px solid #000;padding-top:18px;">
+                <button data-section="{{ sel.sectionId }}" data-id="{{ sel.id }}" onClick="{{ onDeleteGameClose }}" style="padding:12px 18px;border:2.5px solid #000;background:#fff;color:#000;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;text-transform:uppercase;" style-hover="background:#ff2b2b;color:#fff">DELETE GAME</button>
+                <button onClick="{{ closeDetail }}" style="padding:12px 26px;border:2.5px solid #000;background:#000;color:var(--acc);font-family:'Space Mono',monospace;font-weight:700;font-size:13px;text-transform:uppercase;">DONE</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;},&quot;palette&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Acid Yellow&quot;,&quot;options&quot;:[&quot;Acid Yellow&quot;,&quot;Hot Pink&quot;,&quot;Cyan Shock&quot;,&quot;Toxic Lime&quot;,&quot;Blaze Orange&quot;,&quot;Ultra Violet&quot;,&quot;Blood Red&quot;,&quot;Mint&quot;,&quot;Ice Blue&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;}}">
+class Component extends DCLogic {
+  static KEY = 'game-memory-book-v1';
+  // ── Persistence: IndexedDB, not localStorage ────────────────────────────
+  // The doc inlines user-uploaded covers/screenshots/clips as data URLs.
+  // localStorage's ~5MB quota dies on roughly the first video clip, and its
+  // failure mode is a silent catch — the poster stays on screen and is gone
+  // after reload. IndexedDB holds hundreds of MB, and save() reports every
+  // failure in a visible banner instead of swallowing it.
+  static IDB = { db: 'game-vault', store: 'kv', key: 'doc' };
+  static idbOpen() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) return reject(new Error('IndexedDB unavailable'));
+      let rq;
+      // Private-mode Firefox throws synchronously from open().
+      try { rq = indexedDB.open(Component.IDB.db, 1); } catch (e) { return reject(e); }
+      rq.onupgradeneeded = () => {
+        if (!rq.result.objectStoreNames.contains(Component.IDB.store)) rq.result.createObjectStore(Component.IDB.store);
+      };
+      rq.onsuccess = () => resolve(rq.result);
+      rq.onerror = () => reject(rq.error || new Error('IndexedDB open failed'));
+      rq.onblocked = () => reject(new Error('IndexedDB blocked'));
+    });
+  }
+  static idbTx(mode, fn) {
+    return Component.idbOpen().then((db) => new Promise((resolve, reject) => {
+      const tx = db.transaction(Component.IDB.store, mode);
+      const rq = fn(tx.objectStore(Component.IDB.store));
+      // Surface the transaction error, not just the request error: a quota
+      // overflow aborts the tx, and clips are the likeliest thing to do it.
+      tx.onabort = () => reject(tx.error || new Error('IndexedDB transaction aborted'));
+      tx.oncomplete = () => { db.close(); resolve(rq && rq.result); };
+      tx.onerror = () => reject(tx.error || new Error('IndexedDB transaction failed'));
+    }));
+  }
+  static idbGet() { return Component.idbTx('readonly', (s) => s.get(Component.IDB.key)).then((v) => v || null); }
+  static idbSet(v) { return Component.idbTx('readwrite', (s) => s.put(v, Component.IDB.key)); }
+  static PALETTES = {
+    'Acid Yellow':   ['#161616', '#262626', '#ffff00', 'rgba(255,255,0,.5)'],
+    'Hot Pink':      ['#17131a', '#2a2233', '#ff2e88', 'rgba(255,46,136,.55)'],
+    'Cyan Shock':    ['#0f1518', '#1f2d33', '#00e5ff', 'rgba(0,229,255,.5)'],
+    'Toxic Lime':    ['#14170f', '#26301c', '#c6ff00', 'rgba(198,255,0,.5)'],
+    'Blaze Orange':  ['#1a1310', '#33231a', '#ff5a1f', 'rgba(255,90,31,.55)'],
+    'Ultra Violet':  ['#141019', '#282033', '#b388ff', 'rgba(179,136,255,.55)'],
+    'Blood Red':     ['#18110f', '#33201c', '#ff3b30', 'rgba(255,59,48,.55)'],
+    'Mint':          ['#0f1714', '#1e3029', '#3dffb0', 'rgba(61,255,176,.5)'],
+    'Ice Blue':      ['#0f1319', '#222a38', '#7cc4ff', 'rgba(124,196,255,.5)']
+  };
+
+  constructor(props) {
+    super(props);
+    this.importRef = React.createRef();
+    let pal = null;
+    try { pal = localStorage.getItem('gv-palette'); } catch (e) {}
+    if (!pal || !Component.PALETTES[pal]) pal = (props.palette && Component.PALETTES[props.palette]) ? props.palette : 'Acid Yellow';
+    // Paint an empty shell immediately; hydrate() fills it. The constructor
+    // stays synchronous, and IndexedDB (where edits live) cannot be read
+    // synchronously, so first paint must not depend on it.
+    this.state = { data: Component.starter(), editing: false, selSection: null, selId: null, menuOpen: false, paletteName: pal, saveError: null };
+  }
+
+  // Load order: IndexedDB (this device's edits — they win outright, same
+  // contract as the anime app), else anything a pre-IndexedDB version left
+  // in localStorage, else the published data.json. starter() remains only
+  // as the nothing-worked shell.
+  async hydrate() {
+    let data = null;
+    try { data = await Component.idbGet(); } catch (e) {}
+    if (!data) {
+      try { const raw = localStorage.getItem(Component.KEY); if (raw) data = JSON.parse(raw); } catch (e) {}
+    }
+    if (!data) {
+      try { const r = await fetch('./data.json'); if (r.ok) data = await r.json(); } catch (e) {}
+    }
+    if (data && Array.isArray(data.sections)) {
+      if (!data.meta) data.meta = { title: 'A Life in Games', subtitle: '' };
+      this.setState({ data });
+    }
+  }
+
+  setPalette = (e) => {
+    const name = e.currentTarget.dataset.name;
+    if (!Component.PALETTES[name]) return;
+    try { localStorage.setItem('gv-palette', name); } catch (err) {}
+    this.setState({ paletteName: name });
+  };
+  applyTheme() {
+    const p = Component.PALETTES[this.state.paletteName] || Component.PALETTES['Acid Yellow'];
+    const r = document.documentElement.style;
+    r.setProperty('--bg', p[0]);
+    r.setProperty('--grid', p[1]);
+    r.setProperty('--acc', p[2]);
+    r.setProperty('--glow', p[3]);
+  }
+  componentDidMount() { this.applyTheme(); this.hydrate(); }
+  componentDidUpdate(prevProps) {
+    if (prevProps.palette !== this.props.palette && this.props.palette && Component.PALETTES[this.props.palette] && this.props.palette !== this.state.paletteName) {
+      this.setState({ paletteName: this.props.palette });
+    } else {
+      this.applyTheme();
+    }
+  }
+
+  static uid() { return 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  static starter() {
+    // Nothing-worked fallback and first-paint shell only. The real
+    // collection ships in data.json and this device's edits live in
+    // IndexedDB, so keeping placeholder games here would only ever flash
+    // wrong content or resurrect it through Reset.
+    return {
+      meta: {
+        title: 'A Life in Games',
+        subtitle: 'every game I can remember playing \u2014 and the ones still waiting for me'
+      },
+      sections: []
+    };
+  }
+
+  save(data) {
+    // A failed save must never look like a success: the edit is already on
+    // screen, so silence here means data loss discovered days later.
+    Component.idbSet(data).then(() => {
+      if (this.state.saveError) this.setState({ saveError: null });
+    }).catch((e) => {
+      console.warn('game-vault: save failed', e);
+      const quota = e && (e.name === 'QuotaExceededError' || /quota/i.test(e.message || ''));
+      this.setState({ saveError: quota
+        ? 'STORAGE FULL — CHANGES NOT SAVED. REMOVE A CLIP OR IMAGE.'
+        : 'COULD NOT SAVE — CHANGES MAY BE LOST ON RELOAD.' });
+    });
+  }
+  commit(updater) {
+    this.setState(s => {
+      const data = updater(JSON.parse(JSON.stringify(s.data)));
+      this.save(data);
+      return { data };
+    });
+  }
+
+  hash(str) { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0; return Math.abs(h); }
+  mono(name) {
+    const skip = { of: 1, the: 1, a: 1, an: 1, and: 1 };
+    const words = name.replace(/[^A-Za-z0-9\s]/g, ' ').split(/\s+/).filter(w => w && !skip[w.toLowerCase()]);
+    return (words.slice(0, 2).map(w => w[0]).join('') || name.slice(0, 2)).toUpperCase();
+  }
+
+  statusMeta(status) {
+    if (status === 'playing') return { label: 'Now Playing', short: 'PLY', kind: 'playing' };
+    if (status === 'want') return { label: 'Wishlist', short: 'WSH', kind: 'want' };
+    return { label: 'Played', short: 'PLD', kind: 'played' };
+  }
+
+  find(sectionId, gameId) {
+    const sec = this.state.data.sections.find(s => s.id === sectionId);
+    if (!sec) return {};
+    return { sec, game: sec.games.find(x => x.id === gameId), gidx: sec ? sec.games.findIndex(x => x.id === gameId) : -1 };
+  }
+
+  toggleEdit = () => this.setState(s => ({ editing: !s.editing, menuOpen: false }));
+  toggleMenu = () => this.setState(s => ({ menuOpen: !s.menuOpen }));
+  stop = (e) => e.stopPropagation();
+
+  onTitle = (e) => { const v = e.target.value; this.commit(d => { d.meta.title = v; return d; }); };
+  onSubtitle = (e) => { const v = e.target.value; this.commit(d => { d.meta.subtitle = v; return d; }); };
+
+  onCardClick = (e) => {
+    const { section, id } = e.currentTarget.dataset;
+    this.setState({ selSection: section, selId: id });
+  };
+  closeDetail = () => this.setState({ selSection: null, selId: null });
+  startEditSelected = () => this.setState({ editing: true });
+
+  onCycleStatus = (e) => {
+    e.stopPropagation();
+    const { section, id } = e.currentTarget.dataset;
+    const order = ['played', 'playing', 'want'];
+    this.commit(d => {
+      const sec = d.sections.find(s => s.id === section);
+      const gm = sec && sec.games.find(x => x.id === id);
+      if (gm) gm.status = order[(order.indexOf(gm.status) + 1) % 3];
+      return d;
+    });
+  };
+
+  onDeleteGame = (e) => {
+    e.stopPropagation();
+    const { section, id } = e.currentTarget.dataset;
+    if (!confirm('Delete this game from your vault?')) return;
+    this.commit(d => {
+      const sec = d.sections.find(s => s.id === section);
+      if (sec) sec.games = sec.games.filter(x => x.id !== id);
+      return d;
+    });
+  };
+  onDeleteGameClose = (e) => { this.onDeleteGame(e); this.closeDetail(); };
+
+  onAddGame = (e) => {
+    const { section } = e.currentTarget.dataset;
+    const ng = { id: Component.uid(), name: 'New Game', year: new Date().getFullYear(), status: 'want', genre: '', description: '', cover: '', screenshot: '', clip: '' };
+    this.commit(d => {
+      const sec = d.sections.find(s => s.id === section);
+      if (sec) sec.games.push(ng);
+      return d;
+    });
+    this.setState({ selSection: section, selId: ng.id });
+  };
+
+  onField = (e) => {
+    const field = e.currentTarget.dataset.field;
+    const v = e.currentTarget.value;
+    const { selSection, selId } = this.state;
+    this.commit(d => {
+      const sec = d.sections.find(s => s.id === selSection);
+      const gm = sec && sec.games.find(x => x.id === selId);
+      if (gm) gm[field] = v;
+      return d;
+    });
+  };
+  onSetStatus = (e) => {
+    const st = e.currentTarget.dataset.status;
+    const { selSection, selId } = this.state;
+    this.commit(d => {
+      const sec = d.sections.find(s => s.id === selSection);
+      const gm = sec && sec.games.find(x => x.id === selId);
+      if (gm) gm.status = st;
+      return d;
+    });
+  };
+  onFileField = (e) => {
+    const field = e.currentTarget.dataset.field;
+    const file = e.currentTarget.files && e.currentTarget.files[0];
+    if (!file) return;
+    const { selSection, selId } = this.state;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.commit(d => {
+        const sec = d.sections.find(s => s.id === selSection);
+        const gm = sec && sec.games.find(x => x.id === selId);
+        if (gm) gm[field] = reader.result;
+        return d;
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  onRenameSection = (e) => {
+    const { section } = e.currentTarget.dataset; const v = e.target.value;
+    this.commit(d => { const sec = d.sections.find(s => s.id === section); if (sec) sec.name = v; return d; });
+  };
+  onDeleteSection = (e) => {
+    const { section } = e.currentTarget.dataset;
+    if (!confirm('Remove this whole section and its games?')) return;
+    this.commit(d => { d.sections = d.sections.filter(s => s.id !== section); return d; });
+  };
+  addSection = () => {
+    this.commit(d => { d.sections.push({ id: 'sec-' + Component.uid(), name: 'New Platform', games: [] }); return d; });
+  };
+
+  backup = () => {
+    this.setState({ menuOpen: false });
+    const blob = new Blob([JSON.stringify(this.state.data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'game-collection-backup.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  triggerImport = () => { this.setState({ menuOpen: false }); if (this.importRef.current) this.importRef.current.click(); };
+  onImport = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data || !Array.isArray(data.sections)) throw new Error('bad');
+        if (!data.meta) data.meta = { title: 'A Life in Games', subtitle: '' };
+        this.save(data);
+        this.setState({ data, selSection: null, selId: null });
+      } catch (err) { alert('That file could not be read as a valid collection backup.'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+  reset = () => {
+    this.setState({ menuOpen: false });
+    if (!confirm('Reset the vault back to the published collection? Everything you changed on this device will be lost.')) return;
+    // Drop this device's copy entirely and reload — hydrate() then adopts
+    // the published data.json again. Resetting to starter() would show an
+    // empty vault instead of the real collection.
+    try { localStorage.removeItem(Component.KEY); } catch (e) {}
+    const done = () => location.reload();
+    try {
+      const rq = indexedDB.deleteDatabase(Component.IDB.db);
+      rq.onsuccess = rq.onerror = rq.onblocked = done;
+    } catch (e) { done(); }
+  };
+
+  renderVals() {
+    const { data, editing, selSection, selId, menuOpen } = this.state;
+    const meta = data.meta || {};
+
+    let total = 0, played = 0, queue = 0;
+    data.sections.forEach(s => s.games.forEach(gm => {
+      total++;
+      if (gm.status === 'want') queue++; else played++;
+    }));
+
+    const seg = (active) => `flex:1;min-width:100px;padding:13px 8px;border:2.5px solid #000;background:${active ? 'var(--acc)' : '#fff'};color:#000;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;cursor:pointer;`;
+
+    // per-status brutalist treatment for a card
+    const treat = (kind) => {
+      if (kind === 'playing') return {
+        thumbBg: 'var(--acc)', monoColor: '#000', subColor: 'rgba(0,0,0,.6)',
+        idxBadge: "position:absolute;top:9px;left:10px;z-index:2;font-family:'Space Mono',monospace;font-weight:700;font-size:12px;letter-spacing:.05em;padding:2px 7px;border:2px solid #000;color:#000;",
+        tagStyle: "font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:#000;color:var(--acc);padding:3px 8px;text-transform:uppercase;letter-spacing:.04em;",
+        pillStyle: "position:absolute;top:9px;right:9px;z-index:2;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.06em;padding:4px 9px;background:#000;color:var(--acc);", pillLabel: '\u25B6 PLAYING'
+      };
+      if (kind === 'want') return {
+        thumbBg: '#000', monoColor: 'var(--acc)', subColor: 'rgba(255,255,0,.6)',
+        idxBadge: "position:absolute;top:9px;left:10px;z-index:2;font-family:'Space Mono',monospace;font-weight:700;font-size:12px;letter-spacing:.05em;padding:2px 7px;border:2px solid var(--acc);color:var(--acc);",
+        tagStyle: "font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:var(--acc);color:#000;padding:3px 8px;text-transform:uppercase;letter-spacing:.04em;border:1.5px solid #000;",
+        pillStyle: "position:absolute;top:9px;right:9px;z-index:2;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.06em;padding:4px 9px;background:var(--acc);color:#000;border:2px solid #000;", pillLabel: 'WISHLIST \u2197'
+      };
+      return {
+        thumbBg: '#000', monoColor: '#fff', subColor: 'rgba(255,255,255,.55)',
+        idxBadge: "position:absolute;top:9px;left:10px;z-index:2;font-family:'Space Mono',monospace;font-weight:700;font-size:12px;letter-spacing:.05em;padding:2px 7px;border:2px solid #fff;color:#fff;",
+        tagStyle: "font-family:'Space Mono',monospace;font-size:10px;font-weight:700;background:#fff;color:#000;padding:3px 8px;text-transform:uppercase;letter-spacing:.04em;border:1.5px solid #000;",
+        pillStyle: '', pillLabel: ''
+      };
+    };
+
+    const sections = data.sections.map((sec) => ({
+      id: sec.id, name: sec.name,
+      empty: !editing && sec.games.length === 0,
+      countLabel: sec.games.length === 1 ? '01 GAME' : String(sec.games.length).padStart(2, '0') + ' GAMES',
+      games: sec.games.map((gm, gi) => {
+        const m = this.statusMeta(gm.status);
+        const t = treat(m.kind);
+        return {
+          id: gm.id, name: gm.name, year: String(gm.year || ''),
+          index: String(gi + 1).padStart(2, '0'),
+          cover: gm.cover || '', hasCover: !!gm.cover, showMono: !gm.cover, mono: this.mono(gm.name || '?'),
+          platformTag: sec.name.toUpperCase(),
+          thumbBg: t.thumbBg, monoColor: t.monoColor, subColor: t.subColor, idxBadge: t.idxBadge,
+          statusLabel: m.label.toUpperCase(), statusShort: m.short,
+          tagStyle: t.tagStyle,
+          showPill: gm.status !== 'played',
+          pillStyle: t.pillStyle, pillLabel: t.pillLabel,
+          wrapStyle: "background:#fff;border:2.5px solid #000;box-shadow:9px 9px 0 var(--acc);cursor:pointer;position:relative;transition:transform .16s ease,box-shadow .16s ease;content-visibility:auto;contain-intrinsic-size:auto 300px;"
+        };
+      })
+    }));
+
+    const nav = data.sections.map((s) => ({ id: s.id, name: s.name, count: String(s.games.length).padStart(2, '0') }));
+
+    const palettes = Object.keys(Component.PALETTES).map((name) => {
+      const acc = Component.PALETTES[name][2];
+      const active = name === this.state.paletteName;
+      return {
+        name, acc,
+        swStyle: `width:28px;height:28px;flex:0 0 auto;background:${acc};cursor:pointer;padding:0;border:2px solid #fff;transition:transform .12s ease,box-shadow .12s ease;` + (active ? 'box-shadow:0 0 0 3px var(--bg),0 0 0 5px #fff;transform:scale(1.04);' : 'opacity:.5;')
+      };
+    });
+
+    const marqueeBase = ['A LIFE IN GAMES', '\u2605', String(total).padStart(2, '0') + ' CATALOGUED', '\u2605', played + ' PLAYED', '\u2605', queue + ' ON THE WISHLIST', '\u2605'];
+    const marquee = marqueeBase.concat(marqueeBase);
+
+    let sel = null; let hasSelected = false;
+    if (selSection && selId) {
+      const { sec, game, gidx } = this.find(selSection, selId);
+      if (game) {
+        hasSelected = true;
+        const m = this.statusMeta(game.status);
+        const chipMap = {
+          played: "font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.08em;padding:8px 13px;background:#fff;color:#000;border:2.5px solid #000;text-transform:uppercase;",
+          playing: "font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.08em;padding:8px 13px;background:#000;color:var(--acc);border:2.5px solid #000;text-transform:uppercase;",
+          want: "font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.08em;padding:8px 13px;background:var(--acc);color:#000;border:2.5px solid #000;text-transform:uppercase;"
+        };
+        sel = {
+          id: game.id, sectionId: sec.id, sectionName: sec.name,
+          index: String(gidx + 1).padStart(2, '0'),
+          name: game.name, year: String(game.year || ''), genre: game.genre || '', hasGenre: !!(game.genre && game.genre.trim()),
+          description: game.description || (editing ? '' : 'No description yet \u2014 tap Edit to add a couple of sentences about how this one plays.'),
+          cover: game.cover || '', screenshot: game.screenshot || '', clip: game.clip || '',
+          hasClip: !!game.clip,
+          showShotImg: !game.clip && !!game.screenshot,
+          showShotPlaceholder: !game.clip && !game.screenshot,
+          shotBg: '#000', mono: this.mono(game.name || '?'),
+          statusLabel: m.label.toUpperCase(), statusChipStyle: chipMap[m.kind],
+          segPlayed: seg(game.status === 'played'),
+          segPlaying: seg(game.status === 'playing'),
+          segWant: seg(game.status === 'want')
+        };
+      }
+    }
+
+    return {
+      title: meta.title || '', subtitle: meta.subtitle || '',
+      editing, notEditing: !editing, menuOpen,
+      saveError: this.state.saveError || '', hasSaveError: !!this.state.saveError,
+      totalCount: total, playedCount: played, queueCount: queue,
+      sections, nav, marquee, sel, hasSelected, palettes, onPickPalette: this.setPalette,
+      importRef: this.importRef,
+      labelStyle: "display:block;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;color:#000;margin-bottom:8px;",
+      fieldStyle: "width:100%;background:#fff;border:2.5px solid #000;color:#000;padding:12px 13px;font-size:15px;font-family:'Space Grotesk',sans-serif;outline:none;",
+      menuItemStyle: "display:block;width:100%;text-align:left;padding:11px 13px;border:none;background:transparent;color:#000;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;",
+      editBtnStyle: editing
+        ? "display:inline-flex;align-items:center;gap:7px;padding:10px 17px;border:2.5px solid #000;background:var(--acc);color:#000;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;text-transform:uppercase;cursor:pointer;"
+        : "display:inline-flex;align-items:center;gap:7px;padding:10px 17px;border:2.5px solid #000;background:#fff;color:#000;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;text-transform:uppercase;cursor:pointer;",
+      editBtnLabel: editing ? 'EDITING' : 'EDIT',
+      toggleEdit: this.toggleEdit, toggleMenu: this.toggleMenu, stop: this.stop,
+      onTitle: this.onTitle, onSubtitle: this.onSubtitle,
+      onCardClick: this.onCardClick, closeDetail: this.closeDetail, startEditSelected: this.startEditSelected,
+      onCycleStatus: this.onCycleStatus, onDeleteGame: this.onDeleteGame, onDeleteGameClose: this.onDeleteGameClose,
+      onAddGame: this.onAddGame, onField: this.onField, onSetStatus: this.onSetStatus, onFileField: this.onFileField,
+      onRenameSection: this.onRenameSection, onDeleteSection: this.onDeleteSection, addSection: this.addSection,
+      backup: this.backup, triggerImport: this.triggerImport, onImport: this.onImport, reset: this.reset
+    };
+  }
+}
+</script>
+</body>
+</html>
