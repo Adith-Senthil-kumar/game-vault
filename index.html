@@ -181,7 +181,7 @@ window.__resources = {
             <article data-section="{{ section.id }}" data-id="{{ g.id }}" onClick="{{ onCardClick }}" style="{{ g.wrapStyle }}" style-hover="transform:translate(9px,9px);box-shadow:none">
               <div style="position:relative;aspect-ratio:1/1;overflow:hidden;background:{{ g.thumbBg }};border-bottom:2.5px solid #000;">
                 <sc-if value="{{ g.hasCover }}" hint-placeholder-val="{{ false }}">
-                  <img src="{{ g.cover }}" loading="lazy" alt="{{ g.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+                  <img src="{{ g.cover }}" loading="lazy" alt="{{ g.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
                 </sc-if>
                 <sc-if value="{{ g.showMono }}" hint-placeholder-val="{{ true }}">
                   <span style="{{ g.idxBadge }}">{{ g.index }}</span>
@@ -247,10 +247,10 @@ window.__resources = {
 
         <div style="position:relative;aspect-ratio:16/9;background:{{ sel.shotBg }};border-bottom:3px solid #000;overflow:hidden;">
           <sc-if value="{{ sel.hasClip }}" hint-placeholder-val="{{ false }}">
-            <video src="{{ sel.clip }}" muted loop playsinline controls poster="{{ sel.screenshot }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;"></video>
+            <video src="{{ sel.clip }}" muted loop playsinline controls poster="{{ sel.screenshot }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;"></video>
           </sc-if>
           <sc-if value="{{ sel.showShotImg }}" hint-placeholder-val="{{ false }}">
-            <img src="{{ sel.screenshot }}" alt="gameplay" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+            <img src="{{ sel.screenshot }}" alt="gameplay" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
           </sc-if>
           <sc-if value="{{ sel.showShotPlaceholder }}" hint-placeholder-val="{{ true }}">
             <span style="position:absolute;bottom:-30px;right:6px;font-family:'Anton',sans-serif;font-size:220px;line-height:1;color:rgba(255,255,255,.08);">{{ sel.index }}</span>
