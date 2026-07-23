@@ -53,14 +53,14 @@
      "clip": ""
     },
     {
-     "id": "stick-fight-the-game-mobile",
-     "name": "Stick Fight: The Game Mobile",
-     "year": 2019,
+     "id": "stickman-legends-offline-games",
+     "name": "Stickman Legends: Offline Games",
+     "year": 2017,
      "status": "played",
-     "genre": "Physics-based fighting game",
-     "description": "The mobile port of the PC party game where simple stick-figure characters punch, shoot, and knock each other off shifting, hazard-filled platforms in short local or online matches. Controls are stripped down to a directional pad and a couple of action buttons, and weapons spawn randomly on the stage.",
-     "cover": "images/mobile__stick-fight-the-game-mobile__cover.jpg",
-     "screenshot": "images/mobile__stick-fight-the-game-mobile__shot.jpg",
+     "genre": "Stickman action RPG",
+     "description": "You control a stickman ninja fighting through side-view levels and arena battles, swinging swords and other melee weapons in fast combo-based combat against waves of enemies and bosses. It has an offline story campaign plus PvP arena modes, with gear and skill upgrades earned from fights used to unlock new stickman heroes and weapon types. Developed by Zitga, part of a large family of stickman fighting games from the same studio.",
+     "cover": "images/mobile__stickman-legends-offline-games__cover.jpg",
+     "screenshot": "images/mobile__stickman-legends-offline-games__shot.jpg",
      "clip": ""
     },
     {
@@ -821,6 +821,17 @@
      "cover": "images/mobile__war-robots__cover.jpg",
      "screenshot": "images/mobile__war-robots__shot.jpg",
      "clip": ""
+    },
+    {
+     "id": "gangstar-vegas",
+     "name": "Gangstar Vegas",
+     "year": 2013,
+     "status": "played",
+     "genre": "Open-world action-adventure",
+     "description": "A Grand Theft Auto-style open-world game set in a fictional Las Vegas, where you drive vehicles, shoot enemies, and pull off missions ranging from bank robberies to MMA-style fistfights and zombie shootouts. You free-roam the city between story missions, causing chaos, gambling, and street racing, while upgrading weapons, cars, and your character's stats along the way.",
+     "cover": "images/mobile__gangstar-vegas__cover.jpg",
+     "screenshot": "images/mobile__gangstar-vegas__shot.jpg",
+     "clip": ""
     }
    ]
   },
@@ -866,8 +877,8 @@
      "name": "Social Wars",
      "year": 2011,
      "status": "played",
-     "genre": "Social strategy",
-     "description": "A Mafia Wars-style Facebook game where you build up a criminal gang, send it on timed jobs for cash and experience, and buy weapons and properties to boost your stats. You recruit real Facebook friends as gang members and can raid or fight other players' crews to steal from them.",
+     "genre": "Real-time strategy and action",
+     "description": "A classic real-time strategy and action game originally popularized on Facebook, where you build up a base, train troops, and manage resources in real time before sending your forces out to attack enemy camps or raid other players' bases. You recruit real Facebook friends to help defend or reinforce your army, with combat playing out as forces clash directly on the map rather than through pure menu-based simulation.",
      "cover": "images/old-pc__social-wars__cover.jpg",
      "screenshot": "images/old-pc__social-wars__shot.jpg",
      "clip": ""
@@ -917,14 +928,14 @@
      "clip": ""
     },
     {
-     "id": "the-skull-kid",
-     "name": "The Skull Kid",
+     "id": "skull-kid",
+     "name": "Skull Kid",
      "year": 2002,
      "status": "played",
      "genre": "Side-scrolling rampage / beat 'em up",
      "description": "You play a small kid with a demonic skull for a head, fighting your way up through the floors of an office tower armed with a chainsaw and other makeshift weapons, smashing furniture, computers, and anyone in your way. It's a short, violent rampage rather than a full platformer, played over a looping instrumental of 10cc's 'Dreadlock Holiday.' One of the most-played games ever hosted on Newgrounds.",
-     "cover": "images/old-pc__the-skull-kid__cover.jpg",
-     "screenshot": "images/old-pc__the-skull-kid__shot.jpg",
+     "cover": "images/old-pc__skull-kid__cover.jpg",
+     "screenshot": "images/old-pc__skull-kid__shot.jpg",
      "clip": ""
     },
     {
@@ -1343,17 +1354,6 @@
      "description": "You roll and jump a red ball through side-scrolling levels full of spikes, saws, and moving platforms, using physics-based momentum to clear gaps and reach the flag at the end of each stage.",
      "cover": "images/old-pc__red-ball-3__cover.jpg",
      "screenshot": "images/old-pc__red-ball-3__shot.jpg",
-     "clip": ""
-    },
-    {
-     "id": "age-of-empires",
-     "name": "Age of Empires",
-     "year": 1997,
-     "status": "played",
-     "genre": "Real-time strategy",
-     "description": "You gather wood, food, gold, and stone with villagers to build up a settlement, starting in the Stone Age and advancing through ages up to classical antiquity by researching new technologies and buildings, raising armies to expand your territory and defeat rival civilizations.",
-     "cover": "images/old-pc__age-of-empires__cover.jpg",
-     "screenshot": "images/old-pc__age-of-empires__shot.jpg",
      "clip": ""
     },
     {
@@ -1793,14 +1793,14 @@
      "clip": ""
     },
     {
-     "id": "the-incredibles",
-     "name": "The Incredibles",
-     "year": 2004,
+     "id": "the-incredibles-rise-of-the-underminer",
+     "name": "The Incredibles: Rise of the Underminer",
+     "year": 2005,
      "status": "played",
      "genre": "Third-person action-adventure (beat 'em up)",
-     "description": "A movie tie-in where you play members of the Parr family, mainly Mr. Incredible and later other family members, smashing through enemies with super strength, punching and throwing objects across levels loosely based on the Pixar film's settings.",
-     "cover": "images/ps2__the-incredibles__cover.jpg",
-     "screenshot": "images/ps2__the-incredibles__shot.jpg",
+     "description": "An alternate sequel picking up right where the 2004 film ended, as the Underminer drills out of the ground and declares war on the surface world. You play as Mr. Incredible or Frozone (swappable on the fly, with two-player co-op support), smashing through waves of the Underminer's robot minions with super strength or ice powers while the rest of the family handles other threats.",
+     "cover": "images/ps2__the-incredibles-rise-of-the-underminer__cover.jpg",
+     "screenshot": "images/ps2__the-incredibles-rise-of-the-underminer__shot.jpg",
      "clip": ""
     },
     {
@@ -1845,17 +1845,6 @@
      "description": "A motorcycle racing game based on the real MotoGP championship, where you race officially licensed riders and bikes around real-world circuits, managing lean angles, braking, and corner speed to avoid low-siding.",
      "cover": "images/ps2__motogp-08__cover.jpg",
      "screenshot": "images/ps2__motogp-08__shot.jpg",
-     "clip": ""
-    },
-    {
-     "id": "van-helsing",
-     "name": "Van Helsing",
-     "year": 2004,
-     "status": "played",
-     "genre": "Third-person action-adventure (hack and slash)",
-     "description": "A movie tie-in game where you play monster hunter Van Helsing, fighting through gothic, monster-filled levels loosely following the film's story with werewolves, vampires, and Frankenstein's monster as enemies and bosses.",
-     "cover": "images/ps2__van-helsing__cover.jpg",
-     "screenshot": "images/ps2__van-helsing__shot.jpg",
      "clip": ""
     },
     {
@@ -2390,17 +2379,6 @@
      "description": "A Star Wars multiplayer shooter covering all three film eras, letting you play as Rebels, Empire, Resistance, or First Order troops, plus playable heroes and villains earned through in-match points. Also has a single-player campaign following an Imperial special forces commander.",
      "cover": "images/ps4__star-wars-battlefront-ii__cover.jpg",
      "screenshot": "images/ps4__star-wars-battlefront-ii__shot.jpg",
-     "clip": ""
-    },
-    {
-     "id": "rocket-arena",
-     "name": "Rocket Arena",
-     "year": 2020,
-     "status": "played",
-     "genre": "Team-based arena shooter",
-     "description": "A 3v3 team-based shooter where every weapon fires rockets and knockback rather than dealing direct damage, with the goal being to blast opponents off the arena instead of depleting health bars. You pick a hero-style character with a unique rocket weapon and special abilities.",
-     "cover": "images/ps4__rocket-arena__cover.jpg",
-     "screenshot": "images/ps4__rocket-arena__shot.jpg",
      "clip": ""
     },
     {
