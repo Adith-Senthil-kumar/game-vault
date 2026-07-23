@@ -31,8 +31,8 @@ through it and being teleported back.
 Organized the way my gaming life actually happened — by platform:
 
 ```
-MOBILE [75]   OLD PC [53]   NEW PC [11]   N64 [04]
-PS2    [23]   PS4    [50]   PS5    [01]   WANT TO PLAY [14]
+PS4 [50]   PS5 [01]   NEW PC [11]   WANT TO PLAY [14]
+PS2 [23]   N64 [04]   OLD PC [53]   MOBILE [75]
 ```
 
 ## FEATURES
